@@ -1,6 +1,7 @@
 'use strict';
 
 const {ServiceProvider} = require('@adonisjs/fold');
+const _ = require('lodash');
 const GE = require('@adonisjs/generic-exceptions');
 
 class JSONApiServiceProvider extends ServiceProvider {
