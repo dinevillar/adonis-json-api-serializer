@@ -1,0 +1,27 @@
+{
+  "name": "adonis-json-api-serializer",
+  "version": "0.0.1",
+  "description": "AdonisJS Agnostic JSON Rest Api Specification Wrapper",
+  "main": "index.js",
+  "scripts": {},
+  "keywords": [
+    "adonisjs",
+    "adonis-json-api",
+    "json-api",
+    "json-rest-api"
+  ],
+  "author": "Rodine Mark Paul L. Villar <dean.villar@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "japa": "^1.0.6",
+    "japa-cli": "^1.0.1"
+  },
+  "peerDependencies": {
+    "adonis-fold": "^4.0.5",
+    "adonis-generic-exceptions": "^2.0.0"
+  },
+  "dependencies": {
+    "json-api-serializer": "github:danivek/json-api-serializer",
+    "lodash": "^4.17.5"
+  }
+}
