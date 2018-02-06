@@ -60,32 +60,32 @@ getUser({request, response}) {
 > `config/jsonApi.js`
 ``` javascript
 "registry": {
-   "company": {
-      id: "id",
-      links: {
-        self: (data) => {
-          return '/companies/' + data.id
-        }
-      }
-    }
-  "user": {
-  	"links": {
-  		self: (data) => {
-  			return '/users/' + data.id
-    	}
-  	},
-    "relationships": {
-        company: {
-          type: 'company',
-          links: {
-            self: '/companies'
-          }
-        }
-     }
-  	"topLevelLinks": {
-  		self: '/users'
+	"company": {
+		id: "id",
+		links: {
+			self: (data) => {
+			  return '/companies/' + data.id
+			}
+		}
+	}
+	"user": {
+		"links": {
+			self: (data) => {
+				return '/users/' + data.id
+			}
+		},
+		"relationships": {
+			company: {
+			  type: 'company',
+			  links: {
+			    self: '/companies'
+			  }
+			}
+		}
+		"topLevelLinks": {
+			self: '/users'
+		}
   	}
-  }
  }
 ```
 > App/Models/Company
