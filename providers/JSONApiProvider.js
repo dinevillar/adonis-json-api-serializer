@@ -6,14 +6,14 @@ const GE = require('@adonisjs/generic-exceptions');
 class JSONApiServiceProvider extends ServiceProvider {
 
     _registerService() {
-        this.app.singleton('DineV/JSONApiService', (app) => {
+        this.app.singleton('dinevillar/JSONApiService', (app) => {
             const Config = app.use('Aqdonis/Src/Config');
             return new (require('../src/Service'))(Config);
         });
     };
 
     _registerSerializer() {
-        this.app.bind('DineV/JSONApiSerializer', () => require('../src/Serializer'));
+        this.app.bind('dinevillar/JSONApiSerializer', () => require('../src/Serializer'));
     }
 
     register() {
@@ -29,7 +29,7 @@ class JSONApiServiceProvider extends ServiceProvider {
             throw GE.RuntimeException.missingConfig('configuration for jsonApi', 'config/jsonApi.js')
         }
 
-        const jsonApiSerializer = use('DineV/JSONApiService').Serializer;
+        const jsonApiSerializer = use('dinevillar/JSONApiService').Serializer;
         const jsonApiRegistry = Config.get('jsonApi.registry');
         for (let type in jsonApiRegistry) {
             jsonApiSerializer.register(type, jsonApiRegistry[type]);

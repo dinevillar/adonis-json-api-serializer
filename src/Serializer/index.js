@@ -1,7 +1,7 @@
 'use strict';
 
 const _ = require('lodash');
-const JSONApiSerializerService = use('DineV/JSONApiService').Serializer;
+const JSONApiSerializerService = use('dinevillar/JSONApiService').Serializer;
 const VanillaSerializer = require("@adonisjs/lucid/src/Lucid/Serializers/Vanilla");
 
 class JsonApiSerializer extends VanillaSerializer {
