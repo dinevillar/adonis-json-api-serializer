@@ -8,7 +8,7 @@ class JSONApiServiceProvider extends ServiceProvider {
 
     _registerService() {
         this.app.singleton('dinevillar/JSONApiService', (app) => {
-            const Config = app.use('Aqdonis/Src/Config');
+            const Config = app.use('Adonis/Src/Config');
             return new (require('../src/Service'))(Config);
         });
     };
