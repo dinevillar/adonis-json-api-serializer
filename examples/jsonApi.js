@@ -1,6 +1,7 @@
 'use strict';
 
 module.exports = {
+    "mediaType": "application/vnd.api+json",
     "globalOptions": {
         "convertCase": "snake_case",
         "unconvertCase": "camelCase"

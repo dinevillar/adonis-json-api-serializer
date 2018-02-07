@@ -28,11 +28,11 @@ module.exports = {
 
 ```
 
-> Add as provider
+> Add as provider (start/app.js)
 
 ``` javascript
 const providers = [
-	'dinevillar/adonis-json-api-serializer/providers/JSONApiProvider'
+	'adonis-json-api-serializer/providers/JsonApiProvider'
 ]
 ```
 
@@ -43,8 +43,22 @@ static get jsonApiType(){
 }
 
 static get Serializer() {
-    return 'dinevillar/JSONApiSerializer'; // Override Lucid/VanillaSerializer
+    return 'JsonApi/Serializer/LucidSerializer'; // Override Lucid/VanillaSerializer
 };
+```
+
+> Add as named Middleware in start/kernel.js (For Content Negotiation)
+``` javascript
+const namedMiddleware = {
+  jsonApi: 'JsonApi/Middleware/ContentNegotiation'
+};
+```
+
+> Use in your routes
+``` javascript
+// All request and response to /user must conform to JSON API v1
+Route.resource('user', 'UserController')
+    .middleware(['auth', 'jsonApi'])
 ```
 
 ## Usage
@@ -95,21 +109,21 @@ static get jsonApiType(){
 }
 
 static get Serializer() {
-    return 'dinevillar/JSONApiSerializer';
+    return 'JsonApi/Serializer/LucidSerializer';
 };
 ```
 > Somewhere:
 ``` javascript
 getUser({request, response}) {
   const user = await User.find(1);
-  await user.load('company');
+  await user.load('company'); // load relation
   response.send(user.toJSON());
 };
 ```
 #### library:
 > [Serializer functions](https://github.com/danivek/json-api-serializer/blob/master/lib/JSONAPISerializer.js)
 ``` javascript
-const JSONApiSerializerService = use('dinevillar/JSONApiService').Serializer;
+const JSONApiSerializerService = use('JsonApi/Service').Serializer;
 const user = await User.find(1);
 JSONApiSerializerService.serialize("user", user);
 ```

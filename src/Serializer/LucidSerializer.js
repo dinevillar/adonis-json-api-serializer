@@ -1,10 +1,10 @@
 'use strict';
 
 const _ = require('lodash');
-const JSONApiSerializerService = use('dinevillar/JSONApiService').Serializer;
+const JSONApiSerializer = use('JsonApi/Service').Serializer;
 const VanillaSerializer = require("@adonisjs/lucid/src/Lucid/Serializers/Vanilla");
 
-class JsonApiSerializer extends VanillaSerializer {
+class LucidSerializer extends VanillaSerializer {
     toJSON() {
         let json = {};
         if (this.isOne) {
@@ -15,9 +15,16 @@ class JsonApiSerializer extends VanillaSerializer {
                 json = _.merge({}, this.pages, {data})
             }
         }
+        if (this.rows.constructor.hasOwnProperty('jsonApiType')) {
+            try {
+                return JSONApiSerializer.serialize(this.rows.constructor.jsonApiType, json);
+            } catch (error) {
 
-        return JSONApiSerializerService.serialize(this.rows.constructor.jsonApiType, json);
+            }
+        } else {
+            return json;
+        }
     }
 }
 
-module.exports = JsonApiSerializer;
+module.exports = LucidSerializer;
