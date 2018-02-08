@@ -18,8 +18,8 @@ class JsonApiProvider extends ServiceProvider {
     }
 
     _registerMiddleware() {
-        this.app.bind('JsonApi/Middleware/ContentNegotiation', (app) => {
-            const ContentNegotiation = require('../src/Middleware/ContentNegotiation');
+        this.app.bind('JsonApi/Middleware/Specification', (app) => {
+            const ContentNegotiation = require('../src/Middleware');
             return new ContentNegotiation(app.use('Adonis/Src/Config'));
         });
     }

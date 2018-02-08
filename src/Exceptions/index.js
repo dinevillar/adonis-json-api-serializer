@@ -26,9 +26,21 @@ class InvalidRegistry extends LogicalException {
     }
 }
 
-class SerializeError extends LogicalException {
+class MalformedResourceObject extends LogicalException {
     static invoke(message) {
-        return new this(message, 500, 'E_JSON_API_SERIALIZATION_ERROR');
+        if (!message) {
+            message = "Request MUST include a single resource object as primary data. The resource object MUST contain at least a 'type' member."
+        }
+        return new this(message, 400, 'E_JSON_API_MALFORMED_REQUEST');
+    }
+}
+
+class UnknownResourceObjectType extends LogicalException {
+    static invoke(type, message) {
+        if (!message) {
+            message = `Unknown resource object type: ${type}`
+        }
+        return new this(message, 409, 'E_JSON_API_UNKNOWN_RESOURCE_OBJECT_TYPE');
     }
 }
 
@@ -38,5 +50,6 @@ module.exports = {
     UnsupportedMediaType,
     TypeNotDefined,
     InvalidRegistry,
-    SerializeError
+    MalformedResourceObject,
+    UnknownResourceObjectType
 };
