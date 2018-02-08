@@ -123,7 +123,7 @@ getUser({request, response}) {
 #### library:
 > [Serializer functions](https://github.com/danivek/json-api-serializer/blob/master/lib/JSONAPISerializer.js)
 ``` javascript
-const JSONApiSerializerService = use('JsonApi/Service').Serializer;
+const {JsonApiSerializer} = use('JsonApi');
 const user = await User.find(1);
-JSONApiSerializerService.serialize("user", user);
+JsonApiSerializer.serialize("user", user);
 ```
