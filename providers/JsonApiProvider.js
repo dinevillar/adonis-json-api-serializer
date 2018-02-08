@@ -3,13 +3,13 @@
 const {ServiceProvider} = require('@adonisjs/fold');
 const _ = require('lodash');
 const GE = require('@adonisjs/generic-exceptions');
+const CE = require('../src/Exceptions');
 
 class JsonApiProvider extends ServiceProvider {
 
     _registerService() {
-        this.app.singleton('JsonApi/Service', (app) => {
-            const Config = app.use('Adonis/Src/Config');
-            return new (require('../src/Service/JsonApiService'))(Config);
+        this.app.singleton('JsonApi', (app) => {
+            return new (require('../src/Service'))(app.use('Adonis/Src/Config'));
         });
     };
 
@@ -18,19 +18,16 @@ class JsonApiProvider extends ServiceProvider {
     }
 
     _registerMiddleware() {
-        this.app.bind('JsonApi/Middleware/ContentNegotiation', () => require('../src/Middleware/ContentNegotiation'));
-    }
-
-    _registerExceptions() {
-        this.app.bind('JsonApi/Exception/NotAcceptable', () => require('../src/Exceptions/NotAcceptable'));
-        this.app.bind('JsonApi/Exception/UnsupportedMediaType', () => require('../src/Exceptions/UnsupportedMediaType'));
+        this.app.bind('JsonApi/Middleware/ContentNegotiation', (app) => {
+            const ContentNegotiation = require('../src/Middleware/ContentNegotiation');
+            return new ContentNegotiation(app.use('Adonis/Src/Config'));
+        });
     }
 
     register() {
         this._registerService();
         this._registerSerializer();
         this._registerMiddleware();
-        this._registerExceptions();
     }
 
     boot() {
@@ -41,13 +38,13 @@ class JsonApiProvider extends ServiceProvider {
             throw GE.RuntimeException.missingConfig('configuration for jsonApi', 'config/jsonApi.js')
         }
 
-        const Serializer = use('JsonApi/Service').Serializer;
+        const {JsonApiSerializer} = use('JsonApi');
         const Registry = Config.get('jsonApi.registry');
         for (let type in Registry) {
             try {
-                Serializer.register(type, Registry[type]);
+                JsonApiSerializer.register(type, Registry[type]);
             } catch (error) {
-                console.error(error);
+                throw CE.InvalidRegistry.invoke(type + ": " + error.message);
             }
         }
     }

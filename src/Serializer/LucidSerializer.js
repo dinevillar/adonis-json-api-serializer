@@ -1,8 +1,9 @@
 'use strict';
 
 const _ = require('lodash');
-const JSONApiSerializer = use('JsonApi/Service').Serializer;
+const {JsonApiSerializer} = use('JsonApi');
 const VanillaSerializer = require("@adonisjs/lucid/src/Lucid/Serializers/Vanilla");
+const CE = require("../Exceptions");
 
 class LucidSerializer extends VanillaSerializer {
     toJSON() {
@@ -17,12 +18,12 @@ class LucidSerializer extends VanillaSerializer {
         }
         if (this.rows.constructor.hasOwnProperty('jsonApiType')) {
             try {
-                return JSONApiSerializer.serialize(this.rows.constructor.jsonApiType, json);
+                return JsonApiSerializer.serialize(this.rows.constructor.jsonApiType, json);
             } catch (error) {
-
+                throw CE.SerializeError.invoke(this.rows.constructor.name + ": " + error.message);
             }
         } else {
-            return json;
+            throw CE.TypeNotDefined.invoke(this.rows.constructor.name);
         }
     }
 }

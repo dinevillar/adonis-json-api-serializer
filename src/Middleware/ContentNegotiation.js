@@ -1,31 +1,32 @@
 'use strict';
 
-const Config = use('Adonis/Src/Config');
-const UnsupportedMediaType = use('JsonApi/Exception/UnsupportedMediaType');
-const NotAcceptable = use('JsonApi/Exception/NotAcceptable');
+const CE = require('../Exceptions');
 
 class ContentNegotiation {
+    constructor(Config) {
+        this.mediaType = Config.get('jsonApi.mediaType', 'application/vnd.api+json');
+    }
+
     async handle({request, response}, next) {
-        const mediaType = Config.get('jsonApi.mediaType', 'application/vnd.api+json');
         if (request.hasBody()) {
-            if (request.is([mediaType])) {
+            if (request.is([this.mediaType])) {
                 let type = request.header('Content-Type');
                 type = type.split(';');
                 if (type.length > 1) {
-                    throw new UnsupportedMediaType();
+                    throw CE.UnsupportedMediaType.invoke();
                 }
             } else {
-                throw new UnsupportedMediaType();
+                throw CE.UnsupportedMediaType.invoke();
             }
         }
-        if (!request.accepts([mediaType])) {
+        if (!request.accepts([this.mediaType])) {
             let accept = request.header('Accept');
-            if (accept.indexOf(mediaType) !== -1) {
-                throw new NotAcceptable();
+            if (accept.indexOf(this.mediaType) !== -1) {
+                throw CE.NotAcceptable.invoke();
             }
         }
         await next();
-        response.header('Content-Type', mediaType);
+        response.header('Content-Type', this.mediaType);
     }
 }
 
