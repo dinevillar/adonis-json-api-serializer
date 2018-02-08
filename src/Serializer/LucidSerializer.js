@@ -20,7 +20,6 @@ class LucidSerializer extends VanillaSerializer {
             try {
                 return JsonApiSerializer.serialize(this.rows.constructor.jsonApiType, json);
             } catch (error) {
-                throw CE.SerializeError.invoke(this.rows.constructor.name + ": " + error.message);
             }
         } else {
             throw CE.TypeNotDefined.invoke(this.rows.constructor.name);
