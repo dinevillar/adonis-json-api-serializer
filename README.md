@@ -47,10 +47,10 @@ static get Serializer() {
 };
 ```
 
-> Add as named Middleware in start/kernel.js (For Content Negotiation)
+> Add as named Middleware in start/kernel.js
 ``` javascript
 const namedMiddleware = {
-  jsonApi: 'JsonApi/Middleware/ContentNegotiation'
+  jsonApi: 'JsonApi/Middleware/Specification'
 };
 ```
 
@@ -60,6 +60,10 @@ const namedMiddleware = {
 Route.resource('user', 'UserController')
     .middleware(['auth', 'jsonApi'])
 ```
+You can use the "cn" and "ro" schemes of the middleware.
+- Adding "cn" (jsonApi:cn) will allow middleware to check for [Content Negotiation](http://jsonapi.org/format/#content-negotiation)
+- Adding "ro" (jsonApi:ro) will allow middleware to check if request body for POST and PATCH conforms with [JSON API resource object rules](http://jsonapi.org/format/#crud)
+- If none is specified then both will be applied
 
 ## Usage
 #### model.toJSON():
