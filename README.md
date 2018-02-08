@@ -63,6 +63,7 @@ Route.resource('user', 'UserController')
 You can use the "cn" and "ro" schemes of the middleware.
 - Adding "cn" (jsonApi:cn) will allow middleware to check for [Content Negotiation](http://jsonapi.org/format/#content-negotiation)
 - Adding "ro" (jsonApi:ro) will allow middleware to check if request body for POST and PATCH conforms with [JSON API resource object rules](http://jsonapi.org/format/#crud)
+- Adding "ro" (jsonApi:ro) also will automatically deserialize resource objects.
 - If none is specified then both will be applied
 
 ## Usage
