@@ -1,6 +1,6 @@
 'use strict';
 
-const CE = require('../Exceptions');
+const JAE = require('../Exceptions/specification-exceptions');
 const {JsonApiSerializer} = use('JsonApi');
 
 class JsonApiSpecification {
@@ -15,7 +15,7 @@ class JsonApiSpecification {
         if (doContentNegotiation && !request.accepts([this.mediaType])) {
             let accept = request.header('Accept');
             if (accept.indexOf(this.mediaType) !== -1) {
-                throw CE.NotAcceptable.invoke();
+                throw JAE.NotAcceptable.invoke();
             }
         }
 
@@ -25,21 +25,21 @@ class JsonApiSpecification {
                     let type = request.header('Content-Type');
                     type = type.split(';');
                     if (type.length > 1) {
-                        throw CE.UnsupportedMediaType.invoke();
+                        throw JAE.UnsupportedMediaType.invoke();
                     }
                 } else {
-                    throw CE.UnsupportedMediaType.invoke();
+                    throw JAE.UnsupportedMediaType.invoke();
                 }
             }
             if (doResourceObject) {
                 if (!request.input('data') || !request.input('data').hasOwnProperty('type')) {
-                    throw CE.MalformedResourceObject.invoke()
+                    throw JAE.MalformedResourceObject.invoke()
                 }
                 const data = request.input('data');
                 try {
                     request.body = JsonApiSerializer.deserialize(data.type, {data: data});
                 } catch (error) {
-                    throw CE.UnknownResourceObjectType.invoke(data.type, error.message);
+                    throw JAE.UnknownResourceObjectType.invoke(data.type, error.message);
                 }
             }
         }

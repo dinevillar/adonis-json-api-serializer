@@ -3,14 +3,15 @@
 const {ServiceProvider} = require('@adonisjs/fold');
 const _ = require('lodash');
 const GE = require('@adonisjs/generic-exceptions');
-const CE = require('../src/Exceptions');
+const CE = require('../src/Exceptions/specification-exceptions');
 
 class JsonApiProvider extends ServiceProvider {
 
     _registerService() {
-        this.app.singleton('JsonApi', (app) => {
+        this.app.singleton('JsonApi/Service/JsonApiService', (app) => {
             return new (require('../src/Service'))(app.use('Adonis/Src/Config'));
         });
+        this.app.alias('JsonApi/Service/JsonApiService', 'JsonApi');
     };
 
     _registerSerializer() {

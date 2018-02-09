@@ -3,7 +3,7 @@
 const _ = require('lodash');
 const {JsonApiSerializer} = use('JsonApi');
 const VanillaSerializer = require("@adonisjs/lucid/src/Lucid/Serializers/Vanilla");
-const CE = require("../Exceptions");
+const CE = require("../Exceptions/specification-exceptions");
 
 class LucidSerializer extends VanillaSerializer {
     toJSON() {
