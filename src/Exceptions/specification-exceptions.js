@@ -38,24 +38,12 @@ class UnsupportedMediaType extends JsonApiException {
     }
 }
 
-// class TypeNotDefined extends JsonApiException {
-//     static invoke(model) {
-//         return new this(`jsonApiType method for ${model} is not defined`, 500, 'E_JSON_API_TYPE_NOT_DEFINED');
-//     }
-// }
-//
-// class InvalidRegistry extends JsonApiException {
-//     static invoke(message) {
-//         return new this(message, 500, 'E_JSON_API_INVALID_REGISTRY');
-//     }
-// }
-
-class MalformedResourceObject extends JsonApiException {
+class UnprocessableResourceObject extends JsonApiException {
     static invoke(message) {
         if (!message) {
-            message = "Request MUST include a single resource object as primary data. The resource object MUST contain at least a 'type' member."
+            message = "Request resource object cannot be processed."
         }
-        return new this(message, 400, 'E_JSON_API_MALFORMED_REQUEST');
+        return new this(message, 422, 'E_JSON_API_UNPROCESSABLE_ENTITY');
     }
 }
 
@@ -70,11 +58,8 @@ class UnknownResourceObjectType extends JsonApiException {
 
 
 module.exports = {
-    JsonApiException,
     NotAcceptable,
     UnsupportedMediaType,
-    TypeNotDefined,
-    InvalidRegistry,
-    MalformedResourceObject,
+    UnprocessableResourceObject,
     UnknownResourceObjectType
 };
