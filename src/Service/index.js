@@ -4,6 +4,7 @@ const _ = require('lodash');
 const process = require('process');
 const Serializer = require('json-api-serializer');
 const {JsonApiException} = require('../Exceptions');
+const Logger = use('Logger');
 
 class JsonApi {
     constructor(Config) {
@@ -13,16 +14,27 @@ class JsonApi {
         this.jsonApiErrors = [];
     }
 
-    handleError(error) {
+    parseError(error) {
         let jsonApiError = error;
         if (!(error instanceof JsonApiException)) {
             jsonApiError = JsonApiException.invokeFromError(error);
         }
         if (this.includeStackTrace) {
             jsonApiError.meta = {
-                stack: error.stack
+                stack: error.stack.split(/\r?\n/)
             }
         }
+        return jsonApiError.toJSON();
+    }
+
+    async handleError(error, {request, response}) {
+        const jsonApiError = this.parseError(error);
+        this.pushError(error);
+        await response.status(jsonApiError.status).send({"errors": this.jsonApiErrors});
+        this.jsonApiErrors = [];
+    }
+
+    pushError(jsonApiError) {
         this.jsonApiErrors.push(jsonApiError);
     }
 

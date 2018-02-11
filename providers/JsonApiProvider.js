@@ -23,8 +23,6 @@ class JsonApiProvider extends ServiceProvider {
             const JsonApiSpecification = require('../src/Middleware/JsonApiSpecification');
             return new JsonApiSpecification(app.use('Adonis/Src/Config'));
         });
-
-        this.app.bind('JsonApi/Middleware/JsonApiDestroy', () => require('../src/Middleware/JsonApiDestroy'));
     }
 
     register() {

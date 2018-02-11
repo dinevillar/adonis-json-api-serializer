@@ -1,7 +1,8 @@
 'use strict';
 
 const {JsonApiSpecificationException} = require('../Exceptions');
-const {JsonApiSerializer} = use('JsonApi');
+const JsonApi = use('JsonApi');
+const Logger = use('Logger');
 
 class JsonApiSpecification {
     constructor(Config) {
@@ -33,11 +34,15 @@ class JsonApiSpecification {
             }
             if (doResourceObject) {
                 if (!request.input('data') || !request.input('data').hasOwnProperty('type')) {
-                    throw JsonApiSpecificationException.UnprocessableResourceObject.invoke()
+                    const uro = JsonApiSpecificationException.UnprocessableResourceObject.invoke()
+                    uro.links = {
+                        about: "http://jsonapi.org/format/#crud"
+                    }
+                    throw uro;
                 }
                 const data = request.input('data');
                 try {
-                    request.body = JsonApiSerializer.deserialize(data.type, {data: data});
+                    request.body = JsonApi.JsonApiSerializer.deserialize(data.type, {data: data});
                 } catch (error) {
                     throw JsonApiSpecificationException.UnknownResourceObjectType.invoke(data.type, error.message);
                 }

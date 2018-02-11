@@ -1,6 +1,6 @@
 {
   "name": "adonis-json-api-serializer",
-  "version": "0.1.0",
+  "version": "0.3.1-alpha",
   "description": "AdonisJS Agnostic JSON Rest Api Specification Wrapper",
   "main": "index.js",
   "scripts": {},
