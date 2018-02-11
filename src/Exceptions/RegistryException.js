@@ -1,5 +1,5 @@
 'use strict';
-const JsonApiException = require('JsonApiException');
+const JsonApiException = require('./JsonApiException');
 
 class RegistryException extends JsonApiException {
     static invoke(message) {

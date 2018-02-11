@@ -1,6 +1,6 @@
 'use strict';
 
-const JsonApiException = require('JsonApiException');
+const JsonApiException = require('./JsonApiException');
 
 class TypeNotDefinedException extends JsonApiException {
     static invoke(model) {
