@@ -2,34 +2,49 @@
 
 const {JsonApiSpecificationException} = require('../Exceptions');
 const JsonApi = use('JsonApi');
+const process = require('process');
 const Logger = use('Logger');
 
 class JsonApiSpecification {
     constructor(Config) {
         this.mediaType = Config.get('jsonApi.mediaType', 'application/vnd.api+json');
+        this.justWarn = process.env.NODE_ENV !== 'production';
     }
 
     async handle({request, response}, next, schemes) {
         const doContentNegotiation = !schemes.length || schemes.indexOf('cn') !== -1;
         const doResourceObject = !schemes.length || schemes.indexOf('ro') !== -1;
-
         if (doContentNegotiation && !request.accepts([this.mediaType])) {
             let accept = request.header('Accept');
             if (accept.indexOf(this.mediaType) !== -1) {
-                throw JsonApiSpecificationException.NotAcceptable.invoke();
+                const notAcceptErr = JsonApiSpecificationException.NotAcceptable.invoke();
+                if (this.justWarn) {
+                    Logger.warning(notAcceptErr.message);
+                } else {
+                    throw notAcceptErr;
+                }
             }
         }
 
         if (request.hasBody()) {
             if (doContentNegotiation) {
+                const unsuppErr = JsonApiSpecificationException.UnsupportedMediaType.invoke();
                 if (request.is([this.mediaType])) {
                     let type = request.header('Content-Type');
                     type = type.split(';');
                     if (type.length > 1) {
-                        throw JsonApiSpecificationException.UnsupportedMediaType.invoke();
+                        if (this.justWarn) {
+                            Logger.warning(unsuppErr.message);
+                        } else {
+                            throw unsuppErr;
+                        }
                     }
                 } else {
-                    throw JsonApiSpecificationException.UnsupportedMediaType.invoke();
+                    if (this.justWarn) {
+                        Logger.warning(unsuppErr.message);
+                    } else {
+                        throw unsuppErr;
+                    }
                 }
             }
             if (doResourceObject) {

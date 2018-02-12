@@ -3,10 +3,11 @@
 const _ = require('lodash');
 const {JsonApiSerializer} = use('JsonApi');
 const VanillaSerializer = require("@adonisjs/lucid/src/Lucid/Serializers/Vanilla");
-const CE = require("../Exceptions/specification-exceptions");
+const {TypeNotDefinedException} = require("../Exceptions");
+const Logger = use('Logger');
 
 class LucidSerializer extends VanillaSerializer {
-    toJSON() {
+    toJSON(jsonApi = false) {
         let json = {};
         if (this.isOne) {
             json = this._getRowJSON(this.rows)
@@ -16,13 +17,18 @@ class LucidSerializer extends VanillaSerializer {
                 json = _.merge({}, this.pages, {data})
             }
         }
-        if (this.rows.constructor.hasOwnProperty('jsonApiType')) {
-            try {
-                return JsonApiSerializer.serialize(this.rows.constructor.jsonApiType, json);
-            } catch (error) {
+        if (jsonApi) {
+            if (this.rows.constructor.hasOwnProperty('jsonApiType')) {
+                try {
+                    return JsonApiSerializer.serialize(this.rows.constructor.jsonApiType, json);
+                } catch (error) {
+                    Logger.warning(error);
+                }
+            } else {
+                throw TypeNotDefinedException.invoke(this.rows.constructor.name);
             }
         } else {
-            throw CE.TypeNotDefined.invoke(this.rows.constructor.name);
+            return json;
         }
     }
 }
