@@ -1,6 +1,6 @@
 {
   "name": "adonis-json-api-serializer",
-  "version": "0.3.2-alpha",
+  "version": "0.3.3-alpha",
   "description": "AdonisJS Agnostic JSON Rest Api Specification Wrapper",
   "main": "index.js",
   "scripts": {},
@@ -21,7 +21,7 @@
     "adonis-generic-exceptions": "^2.0.0"
   },
   "dependencies": {
-    "json-api-serializer": "github:danivek/json-api-serializer",
+    "json-api-serializer": "github:dinevillar/json-api-serializer",
     "lodash": "^4.17.5",
     "node-exceptions": "^3.0.0"
   }

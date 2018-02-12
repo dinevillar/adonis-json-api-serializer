@@ -49,10 +49,10 @@ class JsonApiSpecification {
             }
             if (doResourceObject) {
                 if (!request.input('data') || !request.input('data').hasOwnProperty('type')) {
-                    const uro = JsonApiSpecificationException.UnprocessableResourceObject.invoke()
+                    const uro = JsonApiSpecificationException.UnprocessableResourceObject.invoke();
                     uro.links = {
                         about: "http://jsonapi.org/format/#crud"
-                    }
+                    };
                     throw uro;
                 }
                 const data = request.input('data');
