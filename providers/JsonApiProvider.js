@@ -12,6 +12,9 @@ class JsonApiProvider extends ServiceProvider {
             return new (require('../src/Service'))(app.use('Adonis/Src/Config'));
         });
         this.app.alias('JsonApi/Service/JsonApiService', 'JsonApi');
+
+        this.app.bind('JsonApi/Service/JsonApiRecordBrowser', () => require('../src/Service/JsonApiRecordBrowser'));
+        this.app.alias('JsonApi/Service/JsonApiRecordBrowser', 'JsonApiRecordBrowser');
     };
 
     _registerSerializer() {
@@ -43,7 +46,7 @@ class JsonApiProvider extends ServiceProvider {
         const Registry = Config.get('jsonApi.registry');
         for (let type in Registry) {
             try {
-                JsonApiSerializer.register(type, Registry[type]);
+                JsonApiSerializer.register(type, Registry[type].structure);
             } catch (error) {
                 throw RegistryException.invoke(type + ": " + error.message);
             }

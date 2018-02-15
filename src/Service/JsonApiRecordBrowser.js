@@ -2,6 +2,7 @@
 
 const _ = require('lodash');
 const {TypeNotDefinedException} = require("../Exceptions");
+const JsonApi = use('JsonApi');
 
 class JsonApiRecordBrowser {
 
@@ -10,11 +11,11 @@ class JsonApiRecordBrowser {
     }
 
     constructor(model) {
-        this._model = use(model);
-        if (this._model.hasOwnProperty('jsonApiType')) {
-            this._jsonApiType = this._model.jsonApiType;
-        } else {
-            throw TypeNotDefinedException.invoke(this._model.name);
+        this._model = model;
+        this._modelInstance = new model();
+        this._jsonApiType = JsonApi.getTypeOfModel(model.name);
+        if (this._jsonApiType === undefined) {
+            throw TypeNotDefinedException.invoke(model.name);
         }
         this._includes = [];
         this._fields = {};
@@ -34,22 +35,29 @@ class JsonApiRecordBrowser {
     }
 
     includes(include) {
-        this._includes = _.union(this._includes, _.map(include.split(','), _.trim));
+        if (include) {
+            this._includes = _.union(this._includes, _.map(include.split(','), _.trim));
+        }
         return this;
     }
 
     fields(fields) {
-        this._fields = Object.assign(this._fields, _.mapValues(fields, (val) => {
-            return _.map(val.split(','), _.trim)
-        }));
+        _.forEach(fields, (value, key) => {
+            if (!this._fields.hasOwnProperty(key)) {
+                this._fields[key] = [];
+            }
+            this._fields[key] = _.union(this._fields[key], _.map(value.split(','), _.trim));
+        });
         return this;
     }
 
     filter(filter) {
-        this._filter = Object.assign(this._filter, _.mapValues(filter, (val) => {
-            const vals = val.split(',');
-            return vals.length > 1 ? _.map(vals, _.trim) : _.trim(val);
-        }));
+        _.forEach(filter, (value, key) => {
+            if (!this._filter.hasOwnProperty(key)) {
+                this._filter[key] = [];
+            }
+            this._filter[key] = _.union(this._filter[key], _.map(value.split(','), _.trim));
+        });
         return this;
     }
 
@@ -59,22 +67,43 @@ class JsonApiRecordBrowser {
     }
 
     sort(sort) {
-        this._sort = _.union(this._sort, _.map(sort.split(','), _.trim));
+        if (sort) {
+            this._sort = _.union(this._sort, _.map(sort.split(','), _.trim));
+        }
         return this;
     }
 
     _buildQuery() {
         const query = this._model.query();
-        if (!_.isEmpty(this._fields) && _.has(this._fields, this._jsonApiType)) {
+        const hasSparseForModel = !_.isEmpty(this._fields) && _.has(this._fields, this._jsonApiType);
+        if (!_.isEmpty(this._includes)) {
+            for (let include of this._includes) {
+                if (typeof this._modelInstance[include] === 'function') {
+                    const relation = this._modelInstance[include]();
+                    if (hasSparseForModel && relation.constructor.name === 'BelongsTo') {
+                        this.fields({[this._jsonApiType]: relation.primaryKey});
+                    }
+                    const relatedJsonApiType = JsonApi.getTypeOfModel(relation.RelatedModel.name);
+                    const hasSparseForInclude = !_.isEmpty(this._fields) && _.has(this._fields, relatedJsonApiType);
+                    if (hasSparseForInclude) {
+                        this.fields({[relatedJsonApiType]: _.get(JsonApi.getRegistry(), relatedJsonApiType + '.structure.id', 'id')});
+                        this.fields({[relatedJsonApiType]: relation.RelatedModel.primaryKey});
+                        query.with(include, (includeQuery) => {
+                            console.log(this._fields[relatedJsonApiType]);
+                            includeQuery.select(this._fields[relatedJsonApiType]);
+                        });
+                    } else {
+                        query.with(include);
+                    }
+                }
+            }
+        }
+        if (hasSparseForModel) {
+            this.fields({[this._jsonApiType]: _.get(JsonApi.getRegistry(), this._jsonApiType + '.structure.id', 'id')});
             query.select(this._fields[this._jsonApiType]);
         }
         if (!_.isEmpty(this._filter)) {
             query.where(this._filter);
-        }
-        if (!_.isEmpty(this._includes)) {
-            for (const include of this._includes) {
-                query.with(include);
-            }
         }
         if (!_.isEmpty(this._sort)) {
             for (const sort of this._sort) {
@@ -89,18 +118,15 @@ class JsonApiRecordBrowser {
     }
 
     async first() {
-        this._buildQuery();
-        return this.query.first();
+        return this._buildQuery().first();
     }
 
     async fetch() {
-        this._buildQuery();
-        return this.query.fetch();
+        return this._buildQuery().fetch();
     }
 
     async paginate() {
-        this._buildQuery();
-        return this.query.paginate(this._page.number, this._page.size);
+        return this._buildQuery().paginate(this._page.number, this._page.size);
     }
 
 }

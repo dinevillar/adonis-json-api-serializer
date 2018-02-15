@@ -5,16 +5,17 @@ const qs = require('qs');
 const VanillaSerializer = require("@adonisjs/lucid/src/Lucid/Serializers/Vanilla");
 const {TypeNotDefinedException} = require("../Exceptions");
 
-const {JsonApiSerializer} = use('JsonApi');
+const JsonApi = use('JsonApi');
 const Logger = use('Logger');
 
 class LucidSerializer extends VanillaSerializer {
     toJSON() {
         if (this.isOne) {
-            if (this.rows.constructor.hasOwnProperty('jsonApiType')) {
+            const jsonApiType = JsonApi.getTypeOfModel(this.rows.constructor.name);
+            if (jsonApiType !== undefined) {
                 try {
-                    return JsonApiSerializer.serialize(
-                        this.rows.constructor.jsonApiType,
+                    return JsonApi.JsonApiSerializer.serialize(
+                        jsonApiType,
                         this._getRowJSON(this.rows)
                     );
                 } catch (error) {
@@ -24,11 +25,12 @@ class LucidSerializer extends VanillaSerializer {
                 throw TypeNotDefinedException.invoke(this.rows.constructor.name);
             }
         } else {
+            const jsonApiType = JsonApi.getTypeOfModel(this.rows[0].constructor.name);
             const data = this.rows.map(this._getRowJSON.bind(this));
-            if (this.rows[0].constructor.hasOwnProperty('jsonApiType')) {
+            if (jsonApiType !== undefined) {
                 try {
                     if (this.pages) {
-                        const jsonApiPaged = JsonApiSerializer.serialize(this.rows[0].constructor.jsonApiType, data);
+                        const jsonApiPaged = JsonApi.JsonApiSerializer.serialize(jsonApiType, data);
                         if (_.has(jsonApiPaged, 'links.self')) {
                             this._setPageLinks(jsonApiPaged.links, jsonApiPaged.links.self);
                         }
@@ -42,7 +44,7 @@ class LucidSerializer extends VanillaSerializer {
                         });
                         return jsonApiPaged;
                     } else {
-                        const jsonApiList = JsonApiSerializer.serialize(this.rows[0].constructor.jsonApiType, data);
+                        const jsonApiList = JsonApi.JsonApiSerializer.serialize(jsonApiType, data);
                         jsonApiList.meta = _.merge({}, {'total': this.rows.length});
                         return jsonApiList;
                     }

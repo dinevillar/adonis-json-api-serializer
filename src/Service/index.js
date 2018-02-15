@@ -8,10 +8,20 @@ const Logger = use('Logger');
 
 class JsonApi {
     constructor(Config) {
-        const config = Config.get('jsonApi.globalOptions');
-        this.JsonApiSerializer = new Serializer(config);
+        this.config = Config.get('jsonApi');
+        this.JsonApiSerializer = new Serializer(this.config.globalOptions);
         this.includeStackTrace = process.env.NODE_ENV !== 'production';
         this.jsonApiErrors = [];
+    }
+
+    getRegistry() {
+        return this.config.registry;
+    }
+
+    getTypeOfModel(name) {
+        return _.findKey(this.getRegistry(), (o) => {
+            return _.endsWith(o.model, name);
+        });
     }
 
     parseError(error) {

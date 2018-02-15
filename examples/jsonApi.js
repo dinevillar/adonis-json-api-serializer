@@ -10,13 +10,16 @@ module.exports = {
     // For more info: https://github.com/danivek/json-api-serializer
     "registry": {
         "user": {
-            "links": {
-                self: (data) => {
-                    return '/users/' + data.id
+            "model": "App/Models/User", //Lucid Model Namespace
+            "structure": {
+                "links": {
+                    self: (data) => {
+                        return '/users/' + data.id
+                    }
+                },
+                "topLevelLinks": {
+                    self: '/users'
                 }
-            },
-            "topLevelLinks": {
-                self: '/users'
             }
         }
     }
