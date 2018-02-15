@@ -35,12 +35,12 @@ class LucidSerializer extends VanillaSerializer {
                             this._setPageLinks(jsonApiPaged.links, jsonApiPaged.links.self);
                         }
                         jsonApiPaged.meta = _.merge({}, {
-                            "_page": {
-                                'number': this.pages._page,
-                                'size': this.pages.perPage,
-                                'pages': this.pages.lastPage
+                            "page": {
+                                'number': parseInt(this.pages.page),
+                                'size': parseInt(this.pages.perPage),
+                                'pages': parseInt(this.pages.lastPage)
                             },
-                            'total': this.pages.total
+                            'total': parseInt(this.pages.total)
                         });
                         return jsonApiPaged;
                     } else {
@@ -59,32 +59,32 @@ class LucidSerializer extends VanillaSerializer {
 
     _setPageLinks(links, refLink) {
         links.first = refLink + '?' + qs.stringify({
-            _page: {
+            page: {
                 number: 1,
                 size: this.pages.perPage
             }
         });
         links.prev = refLink + '?' + qs.stringify({
-            _page: {
-                number: this.pages._page > 1 ? (this.pages._page - 1) : 1,
+            page: {
+                number: this.pages.page > 1 ? (this.pages.page - 1) : 1,
                 size: this.pages.perPage
             }
         });
         links.next = refLink + '?' + qs.stringify({
-            _page: {
-                number: this.pages._page >= this.pages.lastPage ? this.pages.lastPage : (this.pages._page + 1),
+            page: {
+                number: this.pages.page >= this.pages.lastPage ? this.pages.lastPage : (parseInt(this.pages.page) + 1),
                 size: this.pages.perPage
             }
         });
         links.last = refLink + '?' + qs.stringify({
-            _page: {
+            page: {
                 number: this.pages.lastPage,
                 size: this.pages.perPage
             }
         });
         links.self = refLink + '?' + qs.stringify({
-            _page: {
-                number: this.pages._page,
+            page: {
+                number: this.pages.page,
                 size: this.pages.perPage
             }
         });

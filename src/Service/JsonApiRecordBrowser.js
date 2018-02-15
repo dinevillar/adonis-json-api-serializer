@@ -24,8 +24,7 @@ class JsonApiRecordBrowser {
         this._sort = [];
     }
 
-    request(request) {
-        const {include, fields, page, filter, sort} = request.all();
+    request({include, fields, page, filter, sort}) {
         this.includes(include);
         this.fields(fields);
         this.page(page);
@@ -89,7 +88,6 @@ class JsonApiRecordBrowser {
                         this.fields({[relatedJsonApiType]: _.get(JsonApi.getRegistry(), relatedJsonApiType + '.structure.id', 'id')});
                         this.fields({[relatedJsonApiType]: relation.RelatedModel.primaryKey});
                         query.with(include, (includeQuery) => {
-                            console.log(this._fields[relatedJsonApiType]);
                             includeQuery.select(this._fields[relatedJsonApiType]);
                         });
                     } else {
@@ -108,7 +106,7 @@ class JsonApiRecordBrowser {
         if (!_.isEmpty(this._sort)) {
             for (const sort of this._sort) {
                 if (_.startsWith(sort, '-')) {
-                    query.orderBy(sort, 'desc');
+                    query.orderBy(sort.replace('-', ''), 'desc');
                 } else {
                     query.orderBy(sort, 'asc');
                 }
@@ -127,6 +125,14 @@ class JsonApiRecordBrowser {
 
     async paginate() {
         return this._buildQuery().paginate(this._page.number, this._page.size);
+    }
+
+    async paginateOrFetch() {
+        if (_.isEmpty(this._page)) {
+            return this.fetch();
+        } else {
+            return this.paginate();
+        }
     }
 
 }
