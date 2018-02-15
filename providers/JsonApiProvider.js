@@ -3,7 +3,7 @@
 const {ServiceProvider} = require('@adonisjs/fold');
 const _ = require('lodash');
 const GE = require('@adonisjs/generic-exceptions');
-const CE = require('../src/Exceptions/specification-exceptions');
+const {RegistryException} = require('../src/Exceptions');
 
 class JsonApiProvider extends ServiceProvider {
 
@@ -20,8 +20,8 @@ class JsonApiProvider extends ServiceProvider {
 
     _registerMiddleware() {
         this.app.bind('JsonApi/Middleware/Specification', (app) => {
-            const ContentNegotiation = require('../src/Middleware');
-            return new ContentNegotiation(app.use('Adonis/Src/Config'));
+            const JsonApiSpecification = require('../src/Middleware/JsonApiSpecification');
+            return new JsonApiSpecification(app.use('Adonis/Src/Config'));
         });
     }
 
@@ -45,7 +45,7 @@ class JsonApiProvider extends ServiceProvider {
             try {
                 JsonApiSerializer.register(type, Registry[type]);
             } catch (error) {
-                throw CE.InvalidRegistry.invoke(type + ": " + error.message);
+                throw RegistryException.invoke(type + ": " + error.message);
             }
         }
     }
