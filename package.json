@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "@adonisjs/generic-exceptions": "^2.0.0",
-    "json-api-serializer": "github:dinevillar/json-api-serializer#e5a1695f0877089bf0c99a5b04601e0d1f7e449a",
+    "json-api-serializer": "github:dinevillar/json-api-serializer",
     "lodash": "^4.17.5",
     "node-exceptions": "^3.0.0",
     "qs": "^6.5.1"
