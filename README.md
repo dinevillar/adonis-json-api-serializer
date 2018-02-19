@@ -35,7 +35,7 @@ module.exports = {
 
 ``` javascript
 const providers = [
-	'adonis-json-api-serializer/providers/JsonApiProvider'
+	'@dinevillar/adonis-json-api-serializer/providers/JsonApiProvider'
 ]
 ```
 
