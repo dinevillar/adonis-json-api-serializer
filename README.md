@@ -14,13 +14,16 @@ module.exports = {
       // Register JSON API Types here..
       "registry": {
           "user": {
-              "links": {
-                  self: (data) => {
-                      return '/users/' + data.id
+              "model": 'App/Models/User'
+              "structure": {
+                  "links": {
+                      self: (data) => {
+                          return '/users/' + data.id
+                      }
+                  },
+                  "topLevelLinks": {
+                      self: '/users'
                   }
-              },
-              "topLevelLinks": {
-                  self: '/users'
               }
           }
       }
@@ -38,10 +41,6 @@ const providers = [
 
 > Add to your Models
 ``` javascript
-static get jsonApiType(){
-    return "user"; // Use key in Config.get('jsonApi.registry')
-}
-
 static get Serializer() {
     return 'JsonApi/Serializer/LucidSerializer'; // Override Lucid/VanillaSerializer
 };
@@ -80,43 +79,53 @@ getUser({request, response}) {
 ``` javascript
 "registry": {
 	"company": {
-		id: "id",
-		links: {
-			self: (data) => {
-			  return '/companies/' + data.id
-			}
+	    "model": 'App/Models/Company',
+	    "structure": {
+            id: "id",
+            links: {
+                self: (data) => {
+                  return '/companies/' + data.id
+                }
+            }
 		}
 	}
 	"user": {
-		"links": {
-			self: (data) => {
-				return '/users/' + data.id
-			}
-		},
-		"relationships": {
-			company: {
-			  type: 'company',
-			  links: {
-			    self: '/companies'
-			  }
-			}
-		}
-		"topLevelLinks": {
-			self: '/users'
+	    "model": 'App/Models/User',
+	    "structure": {
+            "links": {
+                self: (data) => {
+                    return '/users/' + data.id
+                }
+            },
+            "relationships": {
+                company: {
+                  type: 'company',
+                  links: {
+                    self: '/companies'
+                  }
+                }
+            }
+            "topLevelLinks": {
+                self: '/users'
+            }
 		}
   	}
  }
 ```
 > App/Models/Company
 ``` javascript
-static get jsonApiType(){
-    return "company"; // Use key in Config.get('jsonApi.registry')
-}
-
 static get Serializer() {
     return 'JsonApi/Serializer/LucidSerializer';
 };
 ```
+
+> App/Models/User
+``` javascript
+static get Serializer() {
+    return 'JsonApi/Serializer/LucidSerializer';
+};
+```
+
 > Somewhere:
 ``` javascript
 getUser({request, response}) {
@@ -125,7 +134,36 @@ getUser({request, response}) {
   response.send(user.toJSON());
 };
 ```
-#### library:
+
+#### Record Browser in your Controllers
+``` javascript
+const Company = use('App/Models/Company')
+const JsonApiRB = use('JsonApiRecordBrowser');
+const companies = await JsonApiRB
+  .model(Company)
+  .request(request.get()) //handle request
+  .paginateOrFetch();
+response.send(companies.toJSON());
+```
+The record browser supports:
+- [Pagination](http://jsonapi.org/format/#fetching-pagination)
+- [Sparse Fieldsets](http://jsonapi.org/format/#fetching-sparse-fieldsets)
+- [Inclusion of Related Resources](http://jsonapi.org/format/#fetching-includes)
+- [Filtering](http://jsonapi.org/format/#fetching-filtering)
+- [Sorting](http://jsonapi.org/format/#fetching-sorting)
+
+#### Exceptions
+You can use JsonApi to handle errors and be able to return valid JSON Api error responses.
+Create a global ehandler using `adonis make:ehandler` and use JsonApi in `handle()` function.
+See `examples/Exception/Handler.js`
+
+``` javascript
+async handle(error, options) {
+    JsonApi.handleError(error, options);
+}
+```
+
+#### Serializer Library:
 > [Serializer functions](https://github.com/danivek/json-api-serializer/blob/master/lib/JSONAPISerializer.js)
 ``` javascript
 const {JsonApiSerializer} = use('JsonApi');

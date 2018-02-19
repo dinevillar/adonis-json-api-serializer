@@ -7,9 +7,9 @@ module.exports = {
         "unconvertCase": "camelCase"
     },
     // Register JSON API Types here..
-    // For more info: https://github.com/danivek/json-api-serializer
+    // For more info on structure: https://github.com/danivek/json-api-serializer
     "registry": {
-        "user": {
+        "user": { //JSON API Type
             "model": "App/Models/User", //Lucid Model Namespace
             "structure": {
                 "links": {
