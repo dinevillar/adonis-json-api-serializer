@@ -1,6 +1,6 @@
 ## Installation
 
-`adonis install dinevillar/adonis-json-api-serializer`
+`npm i @dinevillar/adonis-json-api-serializer`
 
 ## Setup
 Create/edit ``config/jsonApi.js``.
