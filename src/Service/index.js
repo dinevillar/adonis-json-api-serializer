@@ -55,10 +55,21 @@ class JsonApi {
         return jsonApiError.toJSON();
     }
 
+    getJsonError() {
+        return this.setCommon(
+            {
+                jsonapi: {
+                    version: '1.0'
+                },
+                errors: this.jsonApiErrors
+            }
+        );
+    }
+
     async handleError(error, {request, response}) {
         const jsonApiError = this.parseError(error);
         this.pushError(error);
-        await response.status(jsonApiError.status).send({"errors": this.jsonApiErrors});
+        await response.status(jsonApiError.status).send(this.getJsonError());
         this.jsonApiErrors = [];
     }
 
@@ -83,8 +94,7 @@ class JsonApi {
             }
             return (status400 > status500) ? 400 : 500;
         } else {
-            const jsonApiError = this.jsonApiErrors.pop();
-            return jsonApiError.status;
+            return this.jsonApiErrors[0].status;
         }
     }
 }
