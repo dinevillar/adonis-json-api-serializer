@@ -2,7 +2,7 @@
 
 const _ = require('lodash');
 const process = require('process');
-const Serializer = require('json-api-serializer');
+const Serializer = require('@dinevillar/json-api-serializer');
 const {JsonApiException, JsonApiSpecificationException} = require('../Exceptions');
 const Logger = use('Logger');
 
