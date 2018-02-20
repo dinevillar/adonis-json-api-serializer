@@ -3,7 +3,7 @@
 const _ = require('lodash');
 const process = require('process');
 const Serializer = require('json-api-serializer');
-const {JsonApiException} = require('../Exceptions');
+const {JsonApiException, JsonApiSpecificationException} = require('../Exceptions');
 const Logger = use('Logger');
 
 class JsonApi {
@@ -11,7 +11,25 @@ class JsonApi {
         this.config = Config.get('jsonApi');
         this.JsonApiSerializer = new Serializer(this.config.globalOptions);
         this.includeStackTrace = process.env.NODE_ENV !== 'production';
+        this.JSE = JsonApiSpecificationException;
+        this.JsonApiException = JsonApiException;
         this.jsonApiErrors = [];
+    }
+
+    setCommon(jsonApi) {
+        if (this.config.commonMeta) {
+            jsonApi.meta = _.merge({}, jsonApi.meta, this.config.commonMeta);
+        }
+        return jsonApi;
+    }
+
+    empty() {
+        return this.setCommon({
+            jsonapi: {
+                version: '1.0'
+            },
+            data: null
+        });
     }
 
     getRegistry() {

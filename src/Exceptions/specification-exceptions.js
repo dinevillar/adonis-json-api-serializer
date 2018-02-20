@@ -56,10 +56,19 @@ class UnknownResourceObjectType extends JsonApiException {
     }
 }
 
+class ResourceObjectDoesNotExist extends JsonApiException {
+    static invoke(type, id, message) {
+        if (!message) {
+            message = `Resource object: ${type} - ${id} does not exist.`
+        }
+        return new this(message, 404, 'E_JSON_API_RESOURCE_OBJECT_DOES_NOT_EXIST');
+    }
+}
 
 module.exports = {
     NotAcceptable,
     UnsupportedMediaType,
     UnprocessableResourceObject,
-    UnknownResourceObjectType
+    UnknownResourceObjectType,
+    ResourceObjectDoesNotExist
 };

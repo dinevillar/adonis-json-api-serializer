@@ -2,6 +2,8 @@
 
 const Logger = use('Logger');
 const JsonApi = use('JsonApi');
+const BaseExceptionHandler = use('BaseExceptionHandler');
+const {JsonApiException} = require('@dinevillar/src/Exceptions');
 
 /**
  * This class handles all exceptions thrown during
@@ -9,7 +11,7 @@ const JsonApi = use('JsonApi');
  *
  * @class ExceptionHandler
  */
-class ExceptionHandler {
+class ExceptionHandler extends BaseExceptionHandler {
     /**
      * Handle exception thrown during the HTTP lifecycle
      *
@@ -22,7 +24,9 @@ class ExceptionHandler {
      * @return {void}
      */
     async handle(error, options) {
-        JsonApi.handleError(error, options);
+        if (error.name instanceof JsonApiException) {
+            JsonApi.handleError(error, options);
+        }
     }
 
     /**
