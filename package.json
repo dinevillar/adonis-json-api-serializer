@@ -1,6 +1,6 @@
 {
   "name": "@dinevillar/adonis-json-api-serializer",
-  "version": "0.5.6",
+  "version": "0.5.7",
   "description": "AdonisJS Agnostic JSON Rest Api Specification Wrapper",
   "main": "index.js",
   "scripts": {
