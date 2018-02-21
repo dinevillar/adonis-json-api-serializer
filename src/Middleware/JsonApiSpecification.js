@@ -4,6 +4,7 @@ const {JsonApiSpecificationException} = require('../Exceptions');
 const JsonApi = use('JsonApi');
 const process = require('process');
 const Logger = use('Logger');
+const url = require('url');
 
 class JsonApiSpecification {
   constructor(Config) {
@@ -65,7 +66,24 @@ class JsonApiSpecification {
     }
     await next();
     if (doContentNegotiation) {
-      response.header('Content-Type', this.mediaType);
+      if (response.lazyBody.content) {
+        response.header('Content-Type', this.mediaType);
+      }
+    }
+    if (doResourceObject) {
+      const content = response.lazyBody.content;
+      if (content && content.hasOwnProperty('links') && content.links.hasOwnProperty('self')) {
+        const parsedUrl = url.parse(content.links.self);
+        if (parsedUrl.host) {
+          content.links.self =
+            (parsedUrl.protocol ? parsedUrl.protocol : 'http') +
+            (parsedUrl.slashes ? "//" : "") +
+            parsedUrl.host +
+            request.originalUrl();
+        } else {
+          content.links.self = request.originalUrl();
+        }
+      }
     }
   }
 }
