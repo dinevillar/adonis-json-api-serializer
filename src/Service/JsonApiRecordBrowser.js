@@ -35,6 +35,7 @@ class JsonApiRecordBrowser {
 
   includes(include) {
     if (include) {
+      include = "" + include;
       this._includes = _.union(this._includes, _.map(include.split(','), _.trim));
     }
     return this;
@@ -42,6 +43,7 @@ class JsonApiRecordBrowser {
 
   fields(fields) {
     _.forEach(fields, (value, key) => {
+      value = "" + value;
       if (!this._fields.hasOwnProperty(key)) {
         this._fields[key] = [];
       }
@@ -52,6 +54,7 @@ class JsonApiRecordBrowser {
 
   filter(filter) {
     _.forEach(filter, (value, key) => {
+      value = "" + value;
       if (!this._filter.hasOwnProperty(key)) {
         this._filter[key] = [];
       }
@@ -67,6 +70,7 @@ class JsonApiRecordBrowser {
 
   sort(sort) {
     if (sort) {
+      sort = "" + sort;
       this._sort = _.union(this._sort, _.map(sort.split(','), _.trim));
     }
     return this;
