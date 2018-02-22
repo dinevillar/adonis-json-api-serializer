@@ -3,7 +3,6 @@
 const Logger = use('Logger');
 const JsonApi = use('JsonApi');
 const BaseExceptionHandler = use('BaseExceptionHandler');
-const {JsonApiException} = require('@dinevillar/src/Exceptions');
 
 /**
  * This class handles all exceptions thrown during
