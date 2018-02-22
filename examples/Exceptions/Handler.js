@@ -25,7 +25,7 @@ class ExceptionHandler extends BaseExceptionHandler {
      */
     async handle(error, options) {
         if (error.name instanceof JsonApiException) {
-            JsonApi.handleError(error, options);
+            JsonApi.ErrorHandler.handleError(error, options);
         }
     }
 

@@ -62,7 +62,6 @@ Route.resource('user', 'UserController')
 You can use the "cn" and "ro" schemes of the middleware.
 - Adding "cn" (jsonApi:cn) will allow middleware to check for [Content Negotiation](http://jsonapi.org/format/#content-negotiation)
 - Adding "ro" (jsonApi:ro) will allow middleware to check if request body for POST and PATCH conforms with [JSON API resource object rules](http://jsonapi.org/format/#crud)
-- Adding "ro" (jsonApi:ro) also will automatically deserialize resource objects.
 - If none is specified then both will be applied
 
 ## Usage
@@ -162,38 +161,6 @@ async handle(error, options) {
     JsonApi.handleError(error, options);
 }
 ```
-
-#### Validator
-> Sample Validator (see examples)
-```` javascript
-const {formatters} = use('Validator');
-const JsonApi = use('JsonApi');
-class UserValidator {
-    get rules(){
-        return {
-            'username': 'required|accepted|max:255',
-            'contact_number': 'required|accepted|max:50',
-            'email': 'required|email|unique:companies,email|max:100'
-        }
-    }
-    
-    get formatter() {
-        return formatters.JsonApi;
-    }
-    
-    async fails({errors}) {
-        for (const error of errors) {
-            const jsonError = JsonApi.JSE.UnprocessableResourceObject.invoke();
-            jsonError.detail = error.detail;
-            jsonError.source = error.source;
-            JsonApi.pushError(jsonError);
-        }
-        return this.ctx.response
-            .status(JsonApi.getJsonErrorStatus())
-            .send(JsonApi.getJsonError());
-    }
-}
-````
 
 #### Serializer Library:
 > [Serializer functions](https://github.com/danivek/json-api-serializer/blob/master/lib/JSONAPISerializer.js)

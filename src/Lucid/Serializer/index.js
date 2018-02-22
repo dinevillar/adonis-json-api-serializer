@@ -3,19 +3,18 @@
 const _ = require('lodash');
 const qs = require('qs');
 const VanillaSerializer = require("@adonisjs/lucid/src/Lucid/Serializers/Vanilla");
-const {TypeNotDefinedException} = require("../Exceptions");
-
+const TypeNotDefinedException = require("../../Exceptions/TypeNotDefinedException");
 const JsonApi = use('JsonApi');
 const Logger = use('Logger');
 
-class LucidSerializer extends VanillaSerializer {
+class JsonApiSerializer extends VanillaSerializer {
     toJSON() {
         let returnJson = null;
         if (this.isOne) {
             const jsonApiType = JsonApi.getTypeOfModel(this.rows.constructor.name);
             if (jsonApiType !== undefined) {
                 try {
-                    returnJson = JsonApi.JsonApiSerializer.serialize(
+                    returnJson = JsonApi.Serializer.serialize(
                         jsonApiType,
                         this._getRowJSON(this.rows)
                     );
@@ -31,7 +30,7 @@ class LucidSerializer extends VanillaSerializer {
             if (jsonApiType !== undefined) {
                 try {
                     if (this.pages) {
-                        returnJson = JsonApi.JsonApiSerializer.serialize(jsonApiType, data);
+                        returnJson = JsonApi.Serializer.serialize(jsonApiType, data);
                         if (_.has(returnJson, 'links.self')) {
                             this._setPageLinks(returnJson.links, returnJson.links.self);
                         }
@@ -44,7 +43,7 @@ class LucidSerializer extends VanillaSerializer {
                             'total': parseInt(this.pages.total)
                         });
                     } else {
-                        returnJson = JsonApi.JsonApiSerializer.serialize(jsonApiType, data);
+                        returnJson = JsonApi.Serializer.serialize(jsonApiType, data);
                         returnJson.meta = _.merge({}, returnJson.meta, {'total': this.rows.length});
                     }
                 } catch (error) {
@@ -53,9 +52,6 @@ class LucidSerializer extends VanillaSerializer {
             } else {
                 throw TypeNotDefinedException.invoke(this.rows[0].constructor.name);
             }
-        }
-        if (returnJson) {
-            returnJson = JsonApi.setCommon(returnJson)
         }
         return returnJson;
     }
@@ -94,4 +90,4 @@ class LucidSerializer extends VanillaSerializer {
     }
 }
 
-module.exports = LucidSerializer;
+module.exports = JsonApiSerializer;

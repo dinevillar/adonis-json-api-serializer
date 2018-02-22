@@ -1,6 +1,6 @@
 'use strict';
 
-const JsonApiException = require('./JsonApiException');
+const JsonApiException = require('./Exceptions/JsonApiException');
 
 class NotAcceptable extends JsonApiException {
     static invoke(acceptHeader) {
@@ -65,10 +65,20 @@ class ResourceObjectDoesNotExist extends JsonApiException {
     }
 }
 
+class RelationshipDoesNotExist extends JsonApiException {
+    static invoke(type, relation, message) {
+        if (!message) {
+            message = `Relation of ${type} to ${relation} does not exist.`
+        }
+        return new this(message, 404, 'E_JSON_API_RELATIONSHIP_DOES_NOT_EXIST');
+    }
+}
+
 module.exports = {
     NotAcceptable,
     UnsupportedMediaType,
     UnprocessableResourceObject,
     UnknownResourceObjectType,
-    ResourceObjectDoesNotExist
+    ResourceObjectDoesNotExist,
+    RelationshipDoesNotExist
 };
