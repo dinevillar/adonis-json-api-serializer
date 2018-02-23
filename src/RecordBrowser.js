@@ -2,9 +2,9 @@
 
 const _ = require('lodash');
 const TypeNotDefinedException = require("./Exceptions/TypeNotDefinedException");
-const JsonApi = use('JsonApi');
+const JsonApiSerializer = use("JsonApiSerializer");
 
-class JsonApiRecordBrowser {
+class RecordBrowser {
 
     static model(model) {
         return new this(model);
@@ -13,7 +13,7 @@ class JsonApiRecordBrowser {
     constructor(model) {
         this._model = model;
         this._modelInstance = new model();
-        this._jsonApiType = JsonApi.getTypeOfModel(model.name);
+        this._jsonApiType = JsonApiSerializer.getTypeOfModel(model.name);
         if (this._jsonApiType === undefined) {
             throw TypeNotDefinedException.invoke(model.name);
         }
@@ -86,10 +86,10 @@ class JsonApiRecordBrowser {
                     if (hasSparseForModel && relation.constructor.name === 'BelongsTo') {
                         this.fields({[this._jsonApiType]: relation.primaryKey});
                     }
-                    const relatedJsonApiType = JsonApi.getTypeOfModel(relation.RelatedModel.name);
+                    const relatedJsonApiType = JsonApiSerializer.getTypeOfModel(relation.RelatedModel.name);
                     const hasSparseForInclude = !_.isEmpty(this._fields) && _.has(this._fields, relatedJsonApiType);
                     if (hasSparseForInclude) {
-                        this.fields({[relatedJsonApiType]: _.get(JsonApi.getRegistry(), relatedJsonApiType + '.structure.id', 'id')});
+                        this.fields({[relatedJsonApiType]: _.get(JsonApiSerializer.getRegistry(), relatedJsonApiType + '.structure.id', 'id')});
                         this.fields({[relatedJsonApiType]: relation.RelatedModel.primaryKey});
                         query.with(include, (includeQuery) => {
                             includeQuery.select(this._fields[relatedJsonApiType]);
@@ -101,7 +101,7 @@ class JsonApiRecordBrowser {
             }
         }
         if (hasSparseForModel) {
-            this.fields({[this._jsonApiType]: _.get(JsonApi.getRegistry(), this._jsonApiType + '.structure.id', 'id')});
+            this.fields({[this._jsonApiType]: _.get(JsonApiSerializer.getRegistry(), this._jsonApiType + '.structure.id', 'id')});
             query.select(this._fields[this._jsonApiType]);
         }
         if (!_.isEmpty(this._filter)) {
@@ -141,4 +141,4 @@ class JsonApiRecordBrowser {
 
 }
 
-module.exports = JsonApiRecordBrowser;
+module.exports = RecordBrowser;

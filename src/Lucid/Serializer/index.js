@@ -4,7 +4,7 @@ const _ = require('lodash');
 const qs = require('qs');
 const VanillaSerializer = require("@adonisjs/lucid/src/Lucid/Serializers/Vanilla");
 const TypeNotDefinedException = require("../../Exceptions/TypeNotDefinedException");
-const JsonApi = use('JsonApi');
+const JsonApiSerializer = use('JsonApi');
 const Logger = use('Logger');
 
 class JsonApiSerializer extends VanillaSerializer {

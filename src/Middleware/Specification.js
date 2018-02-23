@@ -1,7 +1,7 @@
 'use strict';
 
 const JASE = require('../specification-exceptions');
-const JsonApi = use('JsonApi');
+const JsonApiSerializer = use('JsonApiSerializer');
 const Logger = use('Logger');
 const url = require('url');
 
@@ -56,7 +56,7 @@ class Specification {
                     throw uro;
                 }
                 const data = request.input('data');
-                if (!JsonApi.getSchema(data.type)) {
+                if (!JsonApiSerializer.getSchema(data.type)) {
                     throw JASE.UnknownResourceObjectType.invoke(data.type, error.message);
                 }
             }

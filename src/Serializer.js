@@ -1,25 +1,33 @@
 'use strict';
 
 const _ = require('lodash');
-const JsonApiSerializer = require('json-api-serializer');
-const JsonApiErrorHandler = require('./ErrorHandler');
-const JsonApiRecordBrowser = require('./RecordBrowser');
+const JsonApiSerializerLib = require('@dinevillar/json-api-serializer');
 
-class JsonApi {
+class Serializer {
     constructor(Config) {
         this.config = Config.get('jsonApi');
-        this.Serializer = new JsonApiSerializer(this.config.globalOptions);
-        this.ErrorHandler = new JsonApiErrorHandler(this.config);
-        this.RecordBrowser = JsonApiRecordBrowser;
+        this.library = new JsonApiSerializerLib(this.config.globalOptions);
     }
 
     static get empty() {
         return {
-            jsonapi: {
-                version: '1.0'
+            "jsonapi": {
+                "version": "1.0"
             },
-            data: null
+            "data": null
         };
+    }
+
+    register(type, schema, options) {
+        this.library.register(type, schema, options);
+    }
+
+    serialize(type, data, schema, extraData) {
+        return this.library.serialize(type, data, schema, extraData);
+    }
+
+    deserialize(type, data, schema) {
+        return this.library.deserialize(type, data, schema);
     }
 
     getRegistry(type) {
@@ -37,8 +45,8 @@ class JsonApi {
     }
 
     getSchema(type) {
-        return this.Serializer.schemas[type];
+        return this.library.schemas[type];
     }
 }
 
-module.exports = JsonApi;
+module.exports = Serializer;
