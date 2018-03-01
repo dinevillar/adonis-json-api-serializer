@@ -1,8 +1,8 @@
-'use strict';
+'use strict'
 
-const Logger = use('Logger');
-const JsonApi = use('JsonApi');
-const BaseExceptionHandler = use('BaseExceptionHandler');
+const Logger = use('Logger')
+const JsonApi = use('JsonApi')
+const BaseExceptionHandler = use('BaseExceptionHandler')
 
 /**
  * This class handles all exceptions thrown during
@@ -22,11 +22,11 @@ class ExceptionHandler extends BaseExceptionHandler {
      *
      * @return {void}
      */
-    async handle(error, options) {
-        if (error.name instanceof JsonApiException) {
-            JsonApi.ErrorHandler.handleError(error, options);
-        }
+  async handle (error, options) {
+    if (error.name instanceof JsonApiException) {
+      JsonApi.ErrorHandler.handleError(error, options)
     }
+  }
 
     /**
      * Report exception for logging or debugging.
@@ -38,9 +38,9 @@ class ExceptionHandler extends BaseExceptionHandler {
      *
      * @return {void}
      */
-    async report(error, {request}) {
-        Logger.error(error);
-    }
+  async report (error, {request}) {
+    Logger.error(error)
+  }
 }
 
-module.exports = ExceptionHandler;
+module.exports = ExceptionHandler

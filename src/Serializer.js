@@ -1,58 +1,58 @@
-'use strict';
+'use strict'
 
-const _ = require('lodash');
-const JsonApiSerializerLib = require('@dinevillar/json-api-serializer');
+const _ = require('lodash')
+const JsonApiSerializerLib = require('@dinevillar/json-api-serializer')
 
 class Serializer {
-  constructor(Config) {
-    this.config = Config.get('jsonApi');
-    this.topLevelMeta = Config.get('jsonApi.globalOptions.topLevelMeta', {});
-    this.library = new JsonApiSerializerLib(Config.get('jsonApi.globalOptions', {}));
+  constructor (Config) {
+    this.config = Config.get('jsonApi')
+    this.topLevelMeta = Config.get('jsonApi.globalOptions.topLevelMeta', {})
+    this.library = new JsonApiSerializerLib(Config.get('jsonApi.globalOptions', {}))
   }
 
-  static get empty() {
+  static get empty () {
     const empty = {
       jsonapi: {
         version: '1.0'
       },
       data: null
-    };
+    }
     empty['meta'] = Object.assign(
       {}, empty.meta,
       this.topLevelMeta
-    );
-    return empty;
+    )
+    return empty
   }
 
-  register(type, schema, options) {
-    this.library.register(type, schema, options);
+  register (type, schema, options) {
+    this.library.register(type, schema, options)
   }
 
-  serialize(type, data, schema, extraData) {
-    return this.library.serialize(type, data, schema, extraData);
+  serialize (type, data, schema, extraData) {
+    return this.library.serialize(type, data, schema, extraData)
   }
 
-  deserialize(type, data, schema) {
-    return this.library.deserialize(type, data, schema);
+  deserialize (type, data, schema) {
+    return this.library.deserialize(type, data, schema)
   }
 
-  getRegistry(type) {
+  getRegistry (type) {
     if (!type) {
-      return this.config.registry;
+      return this.config.registry
     } else {
-      return this.config.registry[type];
+      return this.config.registry[type]
     }
   }
 
-  getTypeOfModel(name) {
+  getTypeOfModel (name) {
     return _.findKey(this.getRegistry(), (o) => {
-      return _.endsWith(o.model, name);
-    });
+      return _.endsWith(o.model, name)
+    })
   }
 
-  getSchema(type) {
-    return this.library.schemas[type];
+  getSchema (type) {
+    return this.library.schemas[type]
   }
 }
 
-module.exports = Serializer;
+module.exports = Serializer
