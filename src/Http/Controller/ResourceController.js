@@ -17,13 +17,14 @@ class ResourceController {
             .send(modelInstances.toJSON());
     }
 
-    getRelation({registry}, relationship) {
-        const Model = registry.model;
-        const modelInstance = new Model();
-        const relation = modelInstance[relationship];
+    getRelation({registry}, relationship, modelInstance = null) {
+        if (!modelInstance) {
+            const Model = registry.model;
+            modelInstance = new Model();
+        }
         if (_.has(registry, 'structure.relationships.' + relationship) &&
-            typeof relation === 'function') {
-            const relationInstance = relation();
+            typeof modelInstance[relationship] === 'function') {
+            const relationInstance = modelInstance[relationship]();
             if (relationInstance instanceof BaseRelation) {
                 return relationInstance;
             }
@@ -35,7 +36,8 @@ class ResourceController {
         const Model = jsonApi.registry.model;
         let data = jsonApi.data;
         const postCreate = {};
-        const relationships = _.get(request.all(), 'data.relationships', false);
+        const postLoad = [];
+        const relationships = _.get(request.all(), 'data.relationships', {});
         for (const relationField in relationships) {
             const LucidRelation = this.getRelation(jsonApi, relationField);
             const relationship = relationships[relationField];
@@ -51,10 +53,19 @@ class ResourceController {
                             );
                         }
                         data[LucidRelation.primaryKey] = relatedModelInstance[LucidRelation.foreignKey];
+                        postLoad.push(relationField);
                         break;
                     case 'HasOne':
                     case 'HasMany':
+                    case 'BelongsToMany':
                         const relatedData = Array.isArray(data[relationField]) ? data[relationField] : [data[relationField]];
+                        const disallowedBulkUpdates = _.get(jsonApi, 'registry.disallowedBulkUpdates', []);
+                        if (relatedData.length > 1 && disallowedBulkUpdates.indexOf(relationField) > -1) {
+                            throw JSE.BulkRelationshipUpdateIsNotAllowed.invoke(
+                                jsonApi.type,
+                                relationField
+                            );
+                        }
                         for (const value of relatedData) {
                             const relatedIdField = _.get(JsonApiSerializer.getRegistry(relationship.data[0].type), 'structure.id', 'id');
                             const relatedModelInstance = await LucidRelation.RelatedModel.findBy(relatedIdField, value);
@@ -63,6 +74,9 @@ class ResourceController {
                                     postCreate[relationField] = [];
                                 }
                                 postCreate[relationField].push(relatedModelInstance);
+                                if (postLoad.indexOf(relationField) <= -1) {
+                                    postLoad.push(relationField);
+                                }
                             } else {
                                 throw JSE.ResourceObjectDoesNotExist.invoke(
                                     relationship.data[0].type,
@@ -87,11 +101,18 @@ class ResourceController {
         for (const relationship in postCreate) {
             if (postCreate[relationship].length === 1) {
                 await modelInstance[relationship]().save(postCreate[relationship].shift());
-            } else if (postCreate[relationship] > 1) {
+            } else if (postCreate[relationship].length > 1) {
                 await modelInstance[relationship]().saveMany(postCreate[relationship]);
             }
         }
-        response.status(HttpStatus.CREATED).send(modelInstance.toJSON());
+        if (postLoad.length === 1) {
+            await modelInstance.load(postLoad.shift());
+        } else {
+            await modelInstance.loadMany(postLoad);
+        }
+        const jsonModel = modelInstance.toJSON();
+        delete jsonModel.included;
+        response.status(HttpStatus.CREATED).send(jsonModel);
     }
 
     async show({params, request, response, jsonApi}) {
@@ -117,6 +138,68 @@ class ResourceController {
         const modelInstance = await Model.findBy(idField, params.id);
         if (modelInstance) {
             let data = jsonApi.data;
+            const postLoad = [];
+            const relationships = _.get(request.all(), 'data.relationships', {});
+            let relatedIdField = 'id';
+            for (const relationField in relationships) {
+                const LucidRelation = this.getRelation(jsonApi, relationField, modelInstance);
+                const relationship = relationships[relationField];
+                if (LucidRelation) {
+                    switch (LucidRelation.constructor.name) {
+                        case 'HasOne':
+                        case 'BelongsTo':
+                            relatedIdField = _.get(JsonApiSerializer.getRegistry(relationship.data.type), 'structure.id', 'id');
+                            const relatedModelInstance = await LucidRelation.RelatedModel.findBy(relatedIdField, data[relationField]);
+                            if (!relatedModelInstance) {
+                                throw JSE.ResourceObjectDoesNotExist.invoke(
+                                    relationship.data.type,
+                                    data[relationField]
+                                );
+                            }
+                            if (LucidRelation.constructor.name === 'BelongsTo') {
+                                await modelInstance[relationField]().associate(relatedModelInstance);
+                            } else {
+                                await modelInstance[relationField]().save(relatedModelInstance);
+                            }
+                            postLoad.push(relationField);
+                            break;
+                        case 'HasMany':
+                        case 'BelongsToMany':
+                            const relatedData = Array.isArray(data[relationField]) ? data[relationField] : [data[relationField]];
+                            const disallowedBulkUpdates = _.get(jsonApi, 'registry.disallowedBulkUpdates', []);
+                            if (relatedData.length > 1 && disallowedBulkUpdates.indexOf(relationField) > -1) {
+                                throw JSE.BulkRelationshipUpdateIsNotAllowed.invoke(
+                                    jsonApi.type,
+                                    relationField
+                                );
+                            }
+                            relatedIdField = _.get(JsonApiSerializer.getRegistry(relationship.data[0].type), 'structure.id', 'id');
+                            const currentRelatedModelInstances = await LucidRelation.fetch();
+                            const currentRelatedIds = _.map(currentRelatedModelInstances.toJSON().data, 'id');
+                            const diffIds = _.difference(currentRelatedIds, relatedData);
+
+                            for (const value of relatedData) {
+                                const relatedModelInstance = await LucidRelation.RelatedModel.findBy(relatedIdField, value);
+                                if (relatedModelInstance) {
+                                    await modelInstance[relationField]().save(relatedModelInstance);
+                                    if (postLoad.indexOf(relationField) <= -1) {
+                                        postLoad.push(relationField);
+                                    }
+                                } else {
+                                    throw JSE.ResourceObjectDoesNotExist.invoke(
+                                        relationship.data[0].type,
+                                        value
+                                    );
+                                }
+                            }
+
+                            for (const diffId of diffIds) {
+
+                            }
+                            break;
+                    }
+                }
+            }
             if (typeof Model.writeable === 'object') {
                 data = _.pick(data, Model.writeable);
             }
@@ -152,8 +235,7 @@ class ResourceController {
         const idField = _.get(jsonApi, 'registry.structure.id', 'id');
         const modelInstance = await Model.findBy(idField, params.id);
         if (modelInstance) {
-            if (typeof modelInstance[params.relationship] === 'function' &&
-                (modelInstance[params.relationship]() instanceof BaseRelation)) {
+            if (this.getRelation(jsonApi, params.relationship)) {
                 await modelInstance.load(params.relationship);
                 const relationships = modelInstance.toJSON().data.relationships;
                 response.status(HttpStatus.OK)
