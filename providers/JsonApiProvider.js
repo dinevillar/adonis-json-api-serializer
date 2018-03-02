@@ -18,9 +18,12 @@ class JsonApiProvider extends ServiceProvider {
 
     this.app.singleton('JsonApi/Src/RecordBrowser', () => require('../src/RecordBrowser'))
 
+    this.app.singleton('JsonApi/Src/RelationshipHandler', () => require('../src/RelationshipHandler'))
+
     this.app.alias('JsonApi/Src/Serializer', 'JsonApiSerializer')
     this.app.alias('JsonApi/Src/ErrorHandler', 'JsonApiErrorHandler')
     this.app.alias('JsonApi/Src/RecordBrowser', 'JsonApiRecordBrowser')
+    this.app.alias('JsonApi/Src/RelationshipHandler', 'JsonApiRelationshipHandler')
   };
 
   _registerSerializer () {
