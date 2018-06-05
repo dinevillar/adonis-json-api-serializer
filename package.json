@@ -1,5 +1,5 @@
 {
-  "name": "@dinevillar/adonis-json-api-serializer",
+  "name": "@hevelius/adonis-json-api-serializer",
   "version": "0.5.7",
   "description": "AdonisJS Agnostic JSON Rest Api Specification Wrapper",
   "main": "index.js",
@@ -16,7 +16,7 @@
   "author": "Rodine Mark Paul L. Villar <dean.villar@gmail.com>",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/dinevillar/adonis-json-api-serializer.git"
+    "url": "git+https://github.com/hevelius/adonis-json-api-serializer.git"
   },
   "license": "MIT",
   "devDependencies": {
