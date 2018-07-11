@@ -105,7 +105,9 @@ class JsonApiRecordBrowser {
       query.select(this._fields[this._jsonApiType]);
     }
     if (!_.isEmpty(this._filter)) {
-      query.where(this._filter);
+	_.forEach(this._filter, function(value, key) {
+           query.whereIn(key, value)
+     	 })
     }
     if (!_.isEmpty(this._sort)) {
       for (const sort of this._sort) {
